@@ -93,7 +93,7 @@ So an example of a named code block is like this:
 #### "main implementation"
 ```go
 files := os.Args
-for _, file := range os.Args {
+for _, file := range files {
 	<<<process file>>>
 }
 ```
@@ -131,7 +131,8 @@ And our new main:
 ```go
 <<<Initialize>>>
 
-for _, file := range os.Args {
+// os.Args[0] is the command name, "lmt". We don't want to process it.
+for _, file := range os.Args[1:] {
 	<<<Open and process file>>>
 
 }
@@ -438,7 +439,7 @@ var fileBlockRe *regexp.Regexp
 
 #### "Initialize" +=
 ```go
-fileBlockRe = regexp.MustCompile(`^([#]+)[\s]*([\w\.]+)[\s]*([+][=])?$`)
+fileBlockRe = regexp.MustCompile(`^([#]+)[\s]*([\w\.]+)[\s]*([+][=])?`)
 ```
 
 #### "Check filename header"
