@@ -91,7 +91,6 @@ func ProcessFile(r io.Reader) error {
 				block = ""
 			}
 		}
-
 	}
 }
 func parseHeader(line string) (File, BlockName, bool) {
@@ -108,7 +107,7 @@ func parseHeader(line string) (File, BlockName, bool) {
 
 // Replace expands all macros in a CodeBlock and returns a CodeBlock with no
 // references to macros.
-func (c CodeBlock) Replace() (ret CodeBlock) {
+func (c CodeBlock) Replace(prefix string) (ret CodeBlock) {
 	scanner := bufio.NewReader(strings.NewReader(string(c)))
 
 	for {
@@ -119,12 +118,12 @@ func (c CodeBlock) Replace() (ret CodeBlock) {
 		}
 		matches := replaceRe.FindStringSubmatch(line)
 		if matches == nil {
-			ret += CodeBlock(line)
+			ret += CodeBlock(prefix) + CodeBlock(line)
 			continue
 		}
-		bname := BlockName(matches[1])
+		bname := BlockName(matches[2])
 		if val, ok := blocks[bname]; ok {
-			ret += val.Replace()
+			ret += val.Replace(prefix + matches[1])
 		} else {
 			fmt.Fprintf(os.Stderr, "Warning: Block named %s referenced but not defined.\n", bname)
 			ret += CodeBlock(line)
@@ -139,7 +138,7 @@ func main() {
 	files = make(map[File]CodeBlock)
 	namedBlockRe = regexp.MustCompile(`^([#]+)[\s]*"(.+)"[\s]*([+][=])?`)
 	fileBlockRe = regexp.MustCompile(`^([#]+)[\s]*([\w\.]+)[\s]*([+][=])?`)
-	replaceRe = regexp.MustCompile(`^[\s]*<<<(.+)>>>[\s]*$`)
+	replaceRe = regexp.MustCompile(`^([\s]*)<<<(.+)>>>[\s]*$`)
 
 	// os.Args[0] is the command name, "lmt". We don't want to process it.
 	for _, file := range os.Args[1:] {
@@ -163,7 +162,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "%v\n", err)
 			continue
 		}
-		fmt.Fprintf(f, "%s", codeblock.Replace())
+		fmt.Fprintf(f, "%s", codeblock.Replace(""))
 		// We don't defer this so that it'll get closed before the loop finishes.
 		f.Close()
 

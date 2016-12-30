@@ -242,7 +242,6 @@ for {
 			return err	
 	}
 	<<<Handle file line>>>
-
 }
 ```
 
@@ -483,6 +482,11 @@ markdown line scanner to our previous one,
 
 #### "other functions" +=
 ```go
+<<<Replace Declaration>>>
+```
+
+#### "Replace Declaration"
+```go
 // Replace expands all macros in a CodeBlock and returns a CodeBlock with no
 // references to macros.
 func (c CodeBlock) Replace() (ret CodeBlock) {
@@ -521,6 +525,11 @@ var replaceRe *regexp.Regexp
 ```
 
 #### "Initialize" +=
+```go
+<<<Replace Regex>>>
+```
+
+#### "Replace Regex"
 ```go
 replaceRe = regexp.MustCompile(`^[\s]*<<<(.+)>>>[\s]*$`)
 ```
@@ -564,3 +573,4 @@ The output of running it on itself (and then running `go fmt`) is in this repo
 to make it a go-gettable executable for bootstrapping purposes.
 
 To use it after installing it just run, for example `lmt README.md`.
+
