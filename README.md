@@ -438,7 +438,7 @@ var fileBlockRe *regexp.Regexp
 
 #### "Initialize" +=
 ```go
-fileBlockRe = regexp.MustCompile(`^([#]+)[\s]*([\w\.]+)[\s]*([+][=])?`)
+fileBlockRe = regexp.MustCompile(`^([#]+)[\s]*([\w\.\/]+)[\s]*([+][=])?`)
 ```
 
 #### "Check filename header"
