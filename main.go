@@ -138,7 +138,7 @@ func main() {
 	blocks = make(map[BlockName]CodeBlock)
 	files = make(map[File]CodeBlock)
 	namedBlockRe = regexp.MustCompile(`^([#]+)[\s]*"(.+)"[\s]*([+][=])?`)
-	fileBlockRe = regexp.MustCompile(`^([#]+)[\s]*([\w\.\/]+)[\s]*([+][=])?`)
+	fileBlockRe = regexp.MustCompile(`^([#]+)[\s]*([\w\.\-\/]+)[\s]*([+][=])?`)
 	replaceRe = regexp.MustCompile(`^([\s]*)<<<(.+)>>>[\s]*$`)
 
 	// os.Args[0] is the command name, "lmt". We don't want to process it.
