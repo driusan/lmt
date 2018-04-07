@@ -11,8 +11,7 @@ We'll get the directory of the string, and if it's not "." (filepath.Dir
 returns ".", not "" for empty paths) call `os.MkdirAll` on it in order to create
 the directory before creating the file.
 
-#### "Output files"
-```go
+```go "Output files"
 for filename, codeblock := range files {
 	if dir := filepath.Dir(string(filename)); dir != "." {
 		if err := os.MkdirAll(dir, 0775); err != nil {
@@ -32,8 +31,7 @@ for filename, codeblock := range files {
 }
 ```
 
-#### "main.go imports" +=
-```go
+```go "main.go imports" +=
 "path/filepath"
 ```
 
