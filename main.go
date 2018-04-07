@@ -79,11 +79,10 @@ func ProcessFile(r io.Reader) error {
 			case '`':
 				if len(line) >= 3 && line[0:3] == "```" {
 					inBlock = true
+					fname, bname, appending = parseHeader(line)
+					// We're outside of a block, so just blindly reset it.
+					block = ""
 				}
-			case '#':
-				fname, bname, appending = parseHeader(line)
-				// We're outside of a block, so just blindly reset it.
-				block = ""
 			default:
 				inBlock = false
 				appending = false
@@ -95,6 +94,7 @@ func ProcessFile(r io.Reader) error {
 	}
 }
 func parseHeader(line string) (File, BlockName, bool) {
+	line = strings.TrimSpace(line)
 	matches := namedBlockRe.FindStringSubmatch(line)
 	if matches != nil {
 		return "", BlockName(matches[2]), (matches[3] == "+=")
@@ -137,8 +137,8 @@ func main() {
 	// Initialize the maps
 	blocks = make(map[BlockName]CodeBlock)
 	files = make(map[File]CodeBlock)
-	namedBlockRe = regexp.MustCompile(`^([#]+)[\s]*"(.+)"[\s]*([+][=])?`)
-	fileBlockRe = regexp.MustCompile(`^([#]+)[\s]*([\w\.\-\/]+)[\s]*([+][=])?`)
+	namedBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w]+[\\s]+\"(.+)\"[\\s]*([+][=])?$")
+	fileBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w]+[\\s]+([\\w\\.\\-\\/]+)[\\s]*([+][=])?$")
 	replaceRe = regexp.MustCompile(`^([\s]*)<<<(.+)>>>[\s]*$`)
 
 	// os.Args[0] is the command name, "lmt". We don't want to process it.

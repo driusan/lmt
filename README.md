@@ -31,7 +31,7 @@ cumbersome. This is a tool to automate that process.
 It's written in Go, because the Go tooling (notably `go fmt`) lends itself well
 to writing in this paradigm.
 
-## Syntax 
+## Syntax
 
 To be useful for literate programming code blocks need a few features that don't
 exist in standard markdown:
@@ -45,28 +45,25 @@ exist in standard markdown:
 Since markdown codeblocks will already let you specify the language of the block
 for syntax highlighting purposes by naming the language after the three backticks,
 my first thought was to put the file/codeblock name on the same line, after the
-language name. 
+language name.
 
-It turns out that doing that screws up the rendering on GitHub, so instead we'll
-put it into a markdown header immediately preceeding the code block. For a convention,
-we'll say that a string with quotations denotes the name of a code block, and a
-string without quotations denotes a filename to put the code block into. If a
-code block header ends in `+=` it'll mean "append to the named code block",
-otherwise it'll mean "create or replace the existing code block." We'll use a
-line inside of a code block containing nothing but a title inside `<<<` and
-`>>>` (with optional whitespace) as a macro to expand, because it's a convention
-that's unlikely to be used otherwise inside of source code in any language. For
-simplicity, we'll say that the code block header must immediately preceed the
-code block itself.
+For a convention, we'll say that a string with quotations denotes the name of a
+code block, and a string without quotations denotes a filename to put the code
+block into. If a code block header ends in `+=` it'll mean "append to the named
+code block", otherwise it'll mean "create or replace the existing code block."
+We'll use a line inside of a code block containing nothing but a title inside
+`<<<` and `>>>` (with optional whitespace) as a macro to expand, because it's a
+convention that's unlikely to be used otherwise inside of source code in any
+language.
 
 ### Implementation/Example.
 
 The above paragraph fully defines our spec. So, an example of a file code block
 might look like this:
 
-#### main.go
-```go
+```go main.go
 package main
+
 import (
 	<<<main.go imports>>>
 )
@@ -90,8 +87,7 @@ everything passed is a file.
 
 So an example of a named code block is like this:
 
-#### "main implementation"
-```go
+```go "main implementation"
 files := os.Args
 for _, file := range files {
 	<<<process file>>>
@@ -107,8 +103,7 @@ to take that into account.
 
 Our maps, with some types defined for good measure:
 
-#### "global variables"
-```go
+```go "global variables"
 type File string
 type CodeBlock string
 type BlockName string
@@ -118,8 +113,8 @@ var files map[File]CodeBlock
 ```
 
 Our ProcessFile function:
-#### "other functions"
-```go
+
+```go "other functions"
 // Updates the blocks and files map for the markdown read from r.
 func ProcessFile(r io.Reader) error {
 	<<<process file implementation>>>
@@ -127,8 +122,8 @@ func ProcessFile(r io.Reader) error {
 ```
 
 And our new main:
-#### "main implementation"
-```go
+
+```go "main implementation"
 <<<Initialize>>>
 
 // os.Args[0] is the command name, "lmt". We don't want to process it.
@@ -142,8 +137,7 @@ for _, file := range os.Args[1:] {
 We used a few packages, so let's import them before declaring the blocks we
 just used.
 
-#### "main.go imports"
-```go
+```go "main.go imports"
 "fmt"
 "os"
 "io"
@@ -151,8 +145,7 @@ just used.
 
 Initializing the maps is pretty straight forward:
 
-#### "Initialize"
-```go
+```go "Initialize"
 // Initialize the maps
 blocks = make(map[BlockName]CodeBlock)
 files = make(map[File]CodeBlock)
@@ -161,8 +154,7 @@ files = make(map[File]CodeBlock)
 As is opening the files, since we already declared the ProcessFile function and
 we just need to open the file to turn it into an `io.Reader`:
 
-#### "Open and process file"
-```go
+```go "Open and process file"
 f, err := os.Open(file)
 if err != nil {
 	fmt.Fprintln(os.Stderr, "error: ", err)
@@ -171,7 +163,7 @@ if err != nil {
 
 if err := ProcessFile(f); err != nil {
 	fmt.Fprintln(os.Stderr, "error: ", err)
-}	
+}
 // Don't defer since we're in a loop, we don't want to wait until the function
 // exits.
 f.Close()
@@ -186,8 +178,8 @@ We'll start by scanning each line. The Go `bufio` package has a Reader which
 has a `ReadString` method that will stop at a delimiter (in our case, '\n')
 
 We can do use this bufio Reader to iterate through lines like so:
-#### "process file implementation"
-```go
+
+```go "process file implementation"
 scanner := bufio.NewReader(r)
 var err error
 var line string
@@ -199,7 +191,7 @@ for {
 		case nil:
 			// Nothing special
 		default:
-			return err	
+			return err
 	}
 	<<<Handle file line>>>
 
@@ -208,10 +200,10 @@ for {
 
 We'll need to import the `bufio` package which we just used too:
 
-#### "main.go imports" +=
-```go
+```go "main.go imports" +=
 "bufio"
 ```
+
 How do we handle a line? We'll need to keep track of a little state:
 
 1. Are we in a code block?
@@ -220,8 +212,7 @@ How do we handle a line? We'll need to keep track of a little state:
 
 So let's add a little state to our implementation:
 
-#### "process file implementation"
-```go
+```go "process file implementation"
 scanner := bufio.NewReader(r)
 var err error
 var line string
@@ -239,19 +230,18 @@ for {
 		case nil:
 			// Nothing special
 		default:
-			return err	
+			return err
 	}
 	<<<Handle file line>>>
 }
 ```
 
 We'll replace all of the variables with their zero value when we're not in a
-block. 
+block.
 
 The flow of handling a line will be something like:
 
-#### "Handle file line"
-```go
+```go "Handle file line"
 if inBlock {
 	if line == "```\n" {
 		<<<Handle block ending>>>
@@ -267,13 +257,11 @@ if inBlock {
 Handling a code block line is easy, we just add it to the `block` if it's not
 a block ending, and update the map/reset all the variables if it is.
 
-#### "Handle block line"
-```go
+```go "Handle block line"
 block += CodeBlock(line)
 ```
 
-#### "Handle block ending"
-```go
+```go "Handle block ending"
 // Update the files map if it's a file.
 if fname != "" {
 	if appending {
@@ -295,26 +283,23 @@ if bname != "" {
 <<<Reset block flags>>>
 ```
 
-#### "Reset block flags"
-```go
+```go "Reset block flags"
 inBlock = false
 appending = false
 bname = ""
 fname = ""
 block = ""
 ```
+
 #### Processing Non-Block lines
 
-Processing non-block lines is a little more difficult, because we need to keep
-track of all the flags. Luckily, unless the line starts with a '#' (which is
-potentially the header for a codeblock) or '`' (which is potentially the start
-of a code block), we don't need to care and can just reset the flags. Otherwise,
-for triple backticks, we can just check the first three characters of the line
-(we don't care if there's a language specified or not), and for header lines
-we can use a regular expression to parse out the information.
+Processing non-block lines is easy, and we don't have to do anything since we
+are only concerned with code blocks.
+we don't need to care and can just reset the flags.
+Otherwise, for triple backticks, we can just check the first three characters
+of the line (we don't care if there's a language specified or not).
 
-#### "Handle nonblock line"
-```go
+```go "Handle nonblock line"
 if line == "" {
 	continue
 }
@@ -322,21 +307,22 @@ if line == "" {
 switch line[0] {
 case '`':
 	<<<Check block start>>>
-case '#':
-	<<<Check block header>>>
 default:
 	<<<Reset block flags>>>
 }
 ```
 
-As we said, checking the block start is easy, and we don't have to do anything
-but flag that the block has started, since all the other flags were set on the
-header immediately preceeding it:
+When a code block is reached we will need to reset the flags and parse the line
+for the following information:
 
-#### "Check block start"
-```go
+ - a filename
+ - a block name/label
+ - an append flag
+
+```go "Check block start"
 if len(line) >= 3 && line[0:3] == "```" {
 	inBlock = true
+	<<<Check block header>>>
 }
 ```
 
@@ -345,19 +331,19 @@ if len(line) >= 3 && line[0:3] == "```" {
 Parsing headers is a little more difficult, but shouldn't be too hard with
 a regular expression. There's four potential components:
 
-1. 1 or more '#' characters, denoting the markdown header level. We don't care
-   how many there are.
-2. 0 or more alphanumeric characters, which can be a file name.
-3. 0 or 1 string enclosed in quotation marks.
-4. It may or may not end in `+=`.
+ 1. 3 or more '`' characters. We don't care how many there are.
+ 2. 0 or more non-whitespace characters, which will may be the language type.
+ 3. 0 or more alphanumeric characters, which can be a file name.
+ 4. 0 or 1 string enclosed in quotation marks.
+ 5. It may or may not end in `+=`.
 
-So the regex will look something like `/^(#+)([a-zA-Z0-9\.]*)("[.*]"){0,1}(+=){0,1}$/` (there
-are more characters that might be in a file name, but to keep the regex simple
+So the regex will look something like ```/^(`+)([a-zA-Z0-9\.]*)("[.*]"){0,1}(+=){0,1}$/```
+(there are more characters that might be in a file name, but to keep the regex simple
 we'll just assume letters, numbers, and dots.)
 
 That regex is already starting to look hairy, so instead let's split it up into
 two: one for checking if it's a named block, and if that fails one for checking
-if it's a file name. It means we can't have a block which is *both* a named 
+if it's a file name. It means we can't have a block which is *both* a named
 block and *also* goes into a filename, but that's probably not a very useful
 case and can always be done with two blocks (one named, and a file which only
 contains a macro expanding to the named block.)
@@ -365,8 +351,7 @@ contains a macro expanding to the named block.)
 In fact, we'll put the whole thing into a function to make it easier to debug
 and write tests if we want to.
 
-#### "Check block header"
-```go
+```go "Check block header"
 fname, bname, appending = parseHeader(line)
 // We're outside of a block, so just blindly reset it.
 block = ""
@@ -374,9 +359,9 @@ block = ""
 
 Then we need to define our parseHeader function:
 
-#### "other functions" +=
-```go
+```go "other functions" +=
 func parseHeader(line string) (File, BlockName, bool) {
+	line = strings.TrimSpace(line)
 	<<<parseHeader implementation>>>
 }
 ```
@@ -384,14 +369,12 @@ func parseHeader(line string) (File, BlockName, bool) {
 Our implementation is going to use a regex for a namedBlock, and compare the
 line against it, so let's start by importing the regex package.
 
-#### "main.go imports" +=
-```go
+```go "main.go imports" +=
 "regexp"
 ```
 
-#### "parseHeader implementation"
-```go
-namedBlockRe := regexp.MustCompile(`^([#]+)[\s]*"(.+)"[\s]*([+][=])?`)
+```go "parseHeader implementation"
+namedBlockRe := regexp.MustCompile("^([`]+\\s?)[\\w]*[\\s]*\"(.+)\"[\\s]*([+][=])?$")
 matches := namedBlockRe.FindStringSubmatch(line)
 if matches != nil {
 	return "", BlockName(matches[2]), (matches[3] == "+=")
@@ -399,23 +382,21 @@ if matches != nil {
 <<<Check filename header>>>
 return "", "", false
 ```
+
 There's no reason to constantly be re-compiling the namedBlockRe, we can just
 make it global and compile it once on initialization.
 
-#### "global variables" +=
-```go
+```go "global variables" +=
 var namedBlockRe *regexp.Regexp
 ```
 
-#### "Initialize" +=
-```go
-namedBlockRe = regexp.MustCompile(`^([#]+)[\s]*"(.+)"[\s]*([+][=])?`)
+```go "Initialize" +=
+namedBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w]+[\\s]+\"(.+)\"[\\s]*([+][=])?$")
 ```
 
 Then our parse implementation without the MustCompile is:
 
-#### "parseHeader implementation"
-```go
+```go "parseHeader implementation"
 matches := namedBlockRe.FindStringSubmatch(line)
 if matches != nil {
 	return "", BlockName(matches[2]), (matches[3] == "+=")
@@ -431,18 +412,15 @@ specification.
 
 This time, we'll just go straight to declaring the regex as a global.
 
-#### "global variables" +=
-```go
+```go "global variables" +=
 var fileBlockRe *regexp.Regexp
 ```
 
-#### "Initialize" +=
-```go
-fileBlockRe = regexp.MustCompile(`^([#]+)[\s]*([\w\.\-\/]+)[\s]*([+][=])?`)
+```go "Initialize" +=
+fileBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w]+[\\s]+([\\w\\.\\-\\/]+)[\\s]*([+][=])?$")
 ```
 
-#### "Check filename header"
-```go
+```go "Check filename header"
 matches = fileBlockRe.FindStringSubmatch(line)
 if matches != nil {
 	return File(matches[2]), "", (matches[3] == "+=")
@@ -459,8 +437,7 @@ disk. Since our files is a `map[File]CodeBlock`, we can define methods on
 Let's start by just ranging through our files map, and assuming there's a method
 on code block which does the replacing.
 
-#### "Output files"
-```go
+```go "Output files"
 for filename, codeblock := range files {
 	f, err := os.Create(string(filename))
 	if err != nil {
@@ -469,7 +446,7 @@ for filename, codeblock := range files {
 	}
 	fmt.Fprintf(f, "%s", codeblock.Replace())
 	// We don't defer this so that it'll get closed before the loop finishes.
-	f.Close() 
+	f.Close()
 
 }
 ```
@@ -480,13 +457,11 @@ a macro, and if so replace the content (recursively). We can use another regex
 to determine if it's a macro line, and we can use a scanner similar to our
 markdown line scanner to our previous one,
 
-#### "other functions" +=
-```go
+```go "other functions" +=
 <<<Replace Declaration>>>
 ```
 
-#### "Replace Declaration"
-```go
+```go "Replace Declaration"
 // Replace expands all macros in a CodeBlock and returns a CodeBlock with no
 // references to macros.
 func (c CodeBlock) Replace() (ret CodeBlock) {
@@ -494,8 +469,7 @@ func (c CodeBlock) Replace() (ret CodeBlock) {
 }
 ```
 
-#### "Replace codeblock implementation"
-```go
+```go "Replace codeblock implementation"
 scanner := bufio.NewReader(strings.NewReader(string(c)))
 
 for {
@@ -512,35 +486,30 @@ return
 We'll have to import the strings package we just used to convert our CodeBlock
 into an io.Reader:
 
-#### "main.go imports" +=
-```go
+```go "main.go imports" +=
 "strings"
 ```
 
 Now, our replacement regex should be fairly simple:
 
-#### "global variables" +=
-```go
+```go "global variables" +=
 var replaceRe *regexp.Regexp
 ```
 
-#### "Initialize" +=
-```go
+```go "Initialize" +=
 <<<Replace Regex>>>
 ```
 
-#### "Replace Regex"
-```go
+```go "Replace Regex"
 replaceRe = regexp.MustCompile(`^[\s]*<<<(.+)>>>[\s]*$`)
 ```
 
-Okay, so let's do the actual line handling. If it doesn't match, add it to ret
+Okay, so let's do the actual line handling. If it doesn't match, add it to `ret`
 and go on to the next line. If it matches, look up the part that matched in
 blocks and include the replaced CodeBlock from there. (If it doesn't exist,
 we'll add the line unexpanded and print a warning.)
 
-#### "Handle replace line"
-```go
+```go "Handle replace line"
 matches := replaceRe.FindStringSubmatch(line)
 if matches == nil {
 	ret += CodeBlock(line)
@@ -552,8 +521,7 @@ if matches == nil {
 Looking up a replacement is fairly straight forward, since we have a map by the
 time this is called.
 
-#### "Lookup replacement and add to ret"
-```go
+```go "Lookup replacement and add to ret"
 bname := BlockName(matches[1])
 if val, ok := blocks[bname]; ok {
 	ret += val.Replace()
@@ -569,8 +537,16 @@ And now, our tool is finally done! We've finally implemented our `lmt` tool tang
 tool, and can use it to write other literate markdown style programs with the
 same syntax.
 
-The output of running it on itself (and then running `go fmt`) is in this repo
-to make it a go-gettable executable for bootstrapping purposes.
+The output of running it on itself (included [patches](#patches) and then running `go fmt`)
+is in this repo to make it a go-gettable executable for bootstrapping purposes.
 
-To use it after installing it just run, for example `lmt README.md`.
+To use it after installing it just run, for example
 
+```shell
+lmt README.md WhitespacePreservation.md SubdirectoryFiles.md
+```
+
+## Patches
+
+ 1. [Whitespace Preservation](WhitespacePreservation.md)
+ 2. [Subdirectory Files](SubdirectoryFiles.md)

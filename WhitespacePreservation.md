@@ -7,8 +7,7 @@ like use Python.
 To do that, we'll have to group the whitespace token in the Replace Regex so
 that we know the indentation level to preserve.
 
-#### "Replace Regex"
-```go
+```go "Replace Regex"
 replaceRe = regexp.MustCompile(`^([\s]*)<<<(.+)>>>[\s]*$`)
 ```
 
@@ -19,8 +18,7 @@ just found to Replace() to use as a prefix (in addition to the current prefix.)
 (We probably should have used a named grouping, but for now we'll just change
 the index to keep our changes simple.)
 
-#### "Lookup replacement and add to ret"
-```go
+```go "Lookup replacement and add to ret"
 bname := BlockName(matches[2])
 if val, ok := blocks[bname]; ok {
 	ret += val.Replace(prefix + matches[1])
@@ -32,8 +30,7 @@ if val, ok := blocks[bname]; ok {
 
 We'll have to update our function signature too.
 
-#### "Replace Declaration"
-```go
+```go "Replace Declaration"
 // Replace expands all macros in a CodeBlock and returns a CodeBlock with no
 // references to macros.
 func (c CodeBlock) Replace(prefix string) (ret CodeBlock) {
@@ -44,8 +41,7 @@ func (c CodeBlock) Replace(prefix string) (ret CodeBlock) {
 and make sure we pass the empty string as the starting prefix when outputting
 a new file.
 
-#### "Output files"
-```go
+```go "Output files"
 for filename, codeblock := range files {
 	f, err := os.Create(string(filename))
 	if err != nil {
@@ -62,8 +58,7 @@ for filename, codeblock := range files {
 Then all that's left is, when replacing lines, we'll have to include the prefix
 that we just passed, so that the lines get indented.
 
-#### "Handle replace line"
-```go
+```go "Handle replace line"
 matches := replaceRe.FindStringSubmatch(line)
 if matches == nil {
 	ret += CodeBlock(prefix) + CodeBlock(line)
