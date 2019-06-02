@@ -104,6 +104,10 @@ to take that into account.
 Our maps, with some types defined for good measure:
 
 ```go "global variables"
+<<<global block variables>>>
+```
+
+```go "global block variables"
 type File string
 type CodeBlock string
 type BlockName string
@@ -115,6 +119,10 @@ var files map[File]CodeBlock
 Our ProcessFile function:
 
 ```go "other functions"
+<<<ProcessFile Declaration>>>
+```
+
+```go "ProcessFile Declaration"
 // Updates the blocks and files map for the markdown read from r.
 func ProcessFile(r io.Reader) error {
 	<<<process file implementation>>>
@@ -360,6 +368,10 @@ block = ""
 Then we need to define our parseHeader function:
 
 ```go "other functions" +=
+<<<ParseHeader Declaration>>>
+```
+
+```go "ParseHeader Declaration"
 func parseHeader(line string) (File, BlockName, bool) {
 	line = strings.TrimSpace(line)
 	<<<parseHeader implementation>>>
@@ -391,6 +403,10 @@ var namedBlockRe *regexp.Regexp
 ```
 
 ```go "Initialize" +=
+<<<Namedblock Regex>>>
+```
+
+```go "Namedblock Regex"
 namedBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w]+[\\s]+\"(.+)\"[\\s]*([+][=])?$")
 ```
 
@@ -417,6 +433,10 @@ var fileBlockRe *regexp.Regexp
 ```
 
 ```go "Initialize" +=
+<<<Fileblock Regex>>>
+```
+
+```go "Fileblock Regex"
 fileBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w]+[\\s]+([\\w\\.\\-\\/]+)[\\s]*([+][=])?$")
 ```
 
