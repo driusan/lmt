@@ -50,18 +50,22 @@ for filename, codeblock := range files {
 	}
 	fmt.Fprintf(f, "%s", codeblock.Replace(""))
 	// We don't defer this so that it'll get closed before the loop finishes.
-	f.Close() 
+	f.Close()
 
 }
 ```
 
 Then all that's left is, when replacing lines, we'll have to include the prefix
-that we just passed, so that the lines get indented.
+that we just passed, so that the lines get indented. But only if the line isn't
+empty.
 
 ```go "Handle replace line"
 matches := replaceRe.FindStringSubmatch(line)
 if matches == nil {
-	ret += CodeBlock(prefix) + CodeBlock(line)
+	if line != "\n" {
+		ret += CodeBlock(prefix)
+	}
+	ret += CodeBlock(line)
 	continue
 }
 <<<Lookup replacement and add to ret>>>
