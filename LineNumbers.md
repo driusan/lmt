@@ -1,24 +1,24 @@
 # Linenumber directives
 
 Most languages have linenumber directives. They are used for generated code so
-debuggers and errormessages are able to tell which line from the source file is
-responsible instead of the line from the intermediate representation. Golang
+debuggers and error messages are able to tell which line from the source file
+is responsible instead of the line from the intermediate representation. Go
 uses '//line [filename]:[linenumber]', where [XXX] denotes an optional
-parameter. Many (most?) languages from the C-family instead used the format
-'#line lineno ["filename"]'.
+parameter. Many languages from the C-family instead use the format `#line
+lineno ["filename"]`.
 
-This is quite usefule, since `go build`, `go run` etc will provide references
-to the markdown file with the bug (well, at least in theory). IF we want to
-debug the intermediate file, a reference above the specific code is always
-readily avialible a quick right click (Acme) or `gF` away (vim).
+This is quite useful, since `go build`, `go run` etc will provide references to
+the markdown file with the bug (well, at least in theory). IF we want to debug
+the intermediate file, a reference above the specific code is always readily
+avialible a quick right click (Acme) or `gF` away (vim).
 
 If we want to implement this for lmt, we need to change quite a few things, the
 most obvious is the internal representation of a line, which needs quite a lot
-of more metadata, as the filename, the linenumber and the language of the
+more metadata such as the filename, the line number and the language of the
 codeblock.
 
-We remake CodeBlock to a slice of CodeLines. For every line we don't only
-record the text but the name of the source file, the linenumber and the
+We need to change CodeBlock to a slice of CodeLines. For every line we don't
+only record the text but the name of the source file, the linenumber and the
 language (for different line directives).
 
 ```go "global block variables"
@@ -49,7 +49,7 @@ block = append(block, line)
 ```
 
 This cascades. The CodeBlocks in the maps files and blocks can't be joined, but
-has to be appended. We take a few moments to clean up the emptying of metadata
+have to be appended. We take a few moments to clean up the emptying of metadata
 per line, i.e. if a block is ending we can unset inBlock.
 
 ```go "Handle block ending"
@@ -111,8 +111,8 @@ for {
 }
 ```
 
-Sadly, there is no indicator from ioreader which file we are reading so we send
-it in with ProcessFile.
+Sadly, there is no indicator from the Reader about which file we are reading so
+we send it along with ProcessFile.
 
 ```go "ProcessFile Declaration"
 // Updates the blocks and files map for the markdown read from r.
@@ -269,9 +269,9 @@ containing the ready to be used textual representation of the code (or other
 files). We check if the filename is the same as the previous line, and if the
 linenumber has been increased by exactly one. If any of those have changed it
 is because the source for this line are not the same as the previous and we
-interject a "line directive". We know of two variants of these go and the
-common from the C family of languages. lastly we save state, so we have
-something to compare to on the next line.
+interject a "line directive". We know of two variants of these: Go and the C
+variant. Lastly we save state, so we have something to compare to on the next
+line.
 
 ```go "Finalize Declaration"
 
@@ -288,7 +288,7 @@ func (c CodeBlock) Finalize() (ret string) {
 			switch l.lang {
 			case "go", "golang":
 				formatstring = "//line %[2]v:%[1]v\n"
-			default:
+			case "C", "c":
 				formatstring = "#line %v \"%v\"\n"
 			}
 			ret += fmt.Sprintf(formatstring, l.number, l.file)

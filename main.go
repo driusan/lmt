@@ -169,7 +169,7 @@ func (c CodeBlock) Finalize() (ret string) {
 			switch l.lang {
 			case "go", "golang":
 				formatstring = "//line %[2]v:%[1]v\n"
-			default:
+			case "C", "c":
 				formatstring = "#line %v \"%v\"\n"
 			}
 			ret += fmt.Sprintf(formatstring, l.number, l.file)
