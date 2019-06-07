@@ -275,30 +275,40 @@ line.
 
 ```go "Finalize Declaration"
 
-// Finalize extract the textual lines from CodeBlocks and (if needed) prepend a
+// Finalize reads the textual lines from CodeBlocks and (if needed) prepend a
 // notice about "unexpected" filename or line changes, which is extracted from
 // the contained CodeLines. The result is a string with newlines ready to be
 // pasted into a file.
-func (c CodeBlock) Finalize() (ret string) {
-	var file File
+func (block CodeBlock) Finalize() (ret string) {
+	var prev CodeLine
 	var formatstring string
-	var linenumber int
-	for _, l := range c {
-		if linenumber+1 != l.number || file != l.file {
-			switch l.lang {
-			case "go", "golang":
-				formatstring = "//line %[2]v:%[1]v\n"
-			case "C", "c":
-				formatstring = "#line %v \"%v\"\n"
+
+	for _, current := range block {
+		if prev.number+1 != current.number || prev.file != current.file {
+			switch current.lang {
+			<<<Format strings for languages>>>
 			}
-			ret += fmt.Sprintf(formatstring, l.number, l.file)
+			if formatstring != "" {
+				ret += fmt.Sprintf(formatstring, current.number, current.file)
+			}
 		}
-		ret += l.text
-		linenumber = l.number
-		file = l.file
+		ret += current.text
+		prev = current
 	}
 	return
 }
+```
+
+By putting the format strings for different variables in its own codeblock it
+should be simpler to add more later on.
+
+```go "Format strings for languages"
+case "bash", "shell", "sh", "perl":
+	formatstring = "#line %v \"%v\"\n"
+case "go", "golang":
+	formatstring = "//line %[2]v:%[1]v\n"
+case "C", "c":
+	formatstring = "#line %v \"%v\"\n"
 ```
 
 And finally, lets use our Finalize on the Replace-d codeblock, right before we

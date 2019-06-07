@@ -156,27 +156,32 @@ func (c CodeBlock) Replace(prefix string) (ret CodeBlock) {
 }
 //line LineNumbers.md:277
 
-// Finalize extract the textual lines from CodeBlocks and (if needed) prepend a
+// Finalize reads the textual lines from CodeBlocks and (if needed) prepend a
 // notice about "unexpected" filename or line changes, which is extracted from
 // the contained CodeLines. The result is a string with newlines ready to be
 // pasted into a file.
-func (c CodeBlock) Finalize() (ret string) {
-	var file File
+func (block CodeBlock) Finalize() (ret string) {
+	var prev CodeLine
 	var formatstring string
-	var linenumber int
-	for _, l := range c {
-		if linenumber+1 != l.number || file != l.file {
-			switch l.lang {
+
+	for _, current := range block {
+		if prev.number+1 != current.number || prev.file != current.file {
+			switch current.lang {
+//line LineNumbers.md:306
+			case "bash", "shell", "sh", "perl":
+				formatstring = "#line %v \"%v\"\n"
 			case "go", "golang":
 				formatstring = "//line %[2]v:%[1]v\n"
 			case "C", "c":
 				formatstring = "#line %v \"%v\"\n"
+//line LineNumbers.md:290
 			}
-			ret += fmt.Sprintf(formatstring, l.number, l.file)
+			if formatstring != "" {
+				ret += fmt.Sprintf(formatstring, current.number, current.file)
+			}
 		}
-		ret += l.text
-		linenumber = l.number
-		file = l.file
+		ret += current.text
+		prev = current
 	}
 	return
 }
@@ -213,7 +218,7 @@ func main() {
 //line README.md:140
 
 	}
-//line LineNumbers.md:308
+//line LineNumbers.md:318
 	for filename, codeblock := range files {
 		if dir := filepath.Dir(string(filename)); dir != "." {
 			if err := os.MkdirAll(dir, 0775); err != nil {
