@@ -171,6 +171,9 @@ func (c CodeBlock) Finalize() (ret string) {
 				formatstring = "//line %[2]v:%[1]v\n"
 			case "C", "c":
 				formatstring = "#line %v \"%v\"\n"
+            default:
+				ret += l.text
+				continue
 			}
 			ret += fmt.Sprintf(formatstring, l.number, l.file)
 		}
@@ -213,7 +216,7 @@ func main() {
 //line README.md:140
 
 	}
-//line LineNumbers.md:308
+//line LineNumbers.md:311
 	for filename, codeblock := range files {
 		if dir := filepath.Dir(string(filename)); dir != "." {
 			if err := os.MkdirAll(dir, 0775); err != nil {

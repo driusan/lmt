@@ -290,6 +290,9 @@ func (c CodeBlock) Finalize() (ret string) {
 				formatstring = "//line %[2]v:%[1]v\n"
 			case "C", "c":
 				formatstring = "#line %v \"%v\"\n"
+            default:
+				ret += l.text
+				continue
 			}
 			ret += fmt.Sprintf(formatstring, l.number, l.file)
 		}
