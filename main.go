@@ -169,7 +169,7 @@ func (c CodeBlock) Finalize() (ret string) {
 			switch l.lang {
 			case "go", "golang":
 				formatstring = "//line %[2]v:%[1]v\n"
-			case "C", "c":
+			case "C", "c", "cpp":
 				formatstring = "#line %v \"%v\"\n"
             default:
 				ret += l.text
