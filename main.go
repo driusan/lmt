@@ -191,9 +191,9 @@ func main() {
 	blocks = make(map[BlockName]CodeBlock)
 	files = make(map[File]CodeBlock)
 //line LineNumbers.md:208
-	namedBlockRe = regexp.MustCompile("^`{3,}\\s?(\\w*)\\s*\"(.+)\"\\s*([+][=])?$")
+	namedBlockRe = regexp.MustCompile("^`{3,}\\s?([\\w\\+]*)\\s*\"(.+)\"\\s*([+][=])?$")
 //line LineNumbers.md:212
-	fileBlockRe = regexp.MustCompile("^`{3,}\\s?(\\w+)\\s+([\\w\\.\\-\\/]+)\\s*([+][=])?$")
+	fileBlockRe = regexp.MustCompile("^`{3,}\\s?([\\w\\+]+)\\s+([\\w\\.\\-\\/]+)\\s*([+][=])?$")
 //line WhitespacePreservation.md:11
 	replaceRe = regexp.MustCompile(`^([\s]*)<<<(.+)>>>[\s]*$`)
 //line README.md:136

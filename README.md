@@ -386,7 +386,7 @@ line against it, so let's start by importing the regex package.
 ```
 
 ```go "parseHeader implementation"
-namedBlockRe := regexp.MustCompile("^([`]+\\s?)[\\w]*[\\s]*\"(.+)\"[\\s]*([+][=])?$")
+namedBlockRe := regexp.MustCompile("^([`]+\\s?)[\\w\\+]*[\\s]*\"(.+)\"[\\s]*([+][=])?$")
 matches := namedBlockRe.FindStringSubmatch(line)
 if matches != nil {
 	return "", BlockName(matches[2]), (matches[3] == "+=")
@@ -407,7 +407,7 @@ var namedBlockRe *regexp.Regexp
 ```
 
 ```go "Namedblock Regex"
-namedBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w]+[\\s]+\"(.+)\"[\\s]*([+][=])?$")
+namedBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w\\+]+[\\s]+\"(.+)\"[\\s]*([+][=])?$")
 ```
 
 Then our parse implementation without the MustCompile is:
@@ -437,7 +437,7 @@ var fileBlockRe *regexp.Regexp
 ```
 
 ```go "Fileblock Regex"
-fileBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w]+[\\s]+([\\w\\.\\-\\/]+)[\\s]*([+][=])?$")
+fileBlockRe = regexp.MustCompile("^([`]+\\s?)[\\w\\+]+[\\s]+([\\w\\.\\-\\/]+)[\\s]*([+][=])?$")
 ```
 
 ```go "Check filename header"

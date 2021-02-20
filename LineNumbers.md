@@ -205,11 +205,11 @@ return "", "", false, ""
 ```
 
 ```go "Namedblock Regex"
-namedBlockRe = regexp.MustCompile("^`{3,}\\s?(\\w*)\\s*\"(.+)\"\\s*([+][=])?$")
+namedBlockRe = regexp.MustCompile("^`{3,}\\s?([\\w\\+]*)\\s*\"(.+)\"\\s*([+][=])?$")
 ```
 
 ```go "Fileblock Regex"
-fileBlockRe = regexp.MustCompile("^`{3,}\\s?(\\w+)\\s+([\\w\\.\\-\\/]+)\\s*([+][=])?$")
+fileBlockRe = regexp.MustCompile("^`{3,}\\s?([\\w\\+]+)\\s+([\\w\\.\\-\\/]+)\\s*([+][=])?$")
 ```
 
 The (actual) replacement in Replace also joins strings, we need to append to
