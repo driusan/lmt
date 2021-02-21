@@ -563,7 +563,7 @@ is in this repo to make it a go-gettable executable for bootstrapping purposes.
 To use it after installing it just run, for example
 
 ```shell
-lmt README.md WhitespacePreservation.md SubdirectoryFiles.md LineNumbers.md
+lmt README.md WhitespacePreservation.md SubdirectoryFiles.md LineNumbers.md IndentedBlocks.md
 ```
 
 ## Patches
@@ -571,3 +571,4 @@ lmt README.md WhitespacePreservation.md SubdirectoryFiles.md LineNumbers.md
  1. [Whitespace Preservation](WhitespacePreservation.md)
  2. [Subdirectory Files](SubdirectoryFiles.md)
  3. [Line Numbers](LineNumbers.md)
+ 3. [Indented Blocks](IndentedBlocks.md)
