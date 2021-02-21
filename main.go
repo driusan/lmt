@@ -4,8 +4,8 @@ package main
 import (
 //line README.md:149
 	"fmt"
-	"os"
 	"io"
+	"os"
 //line README.md:212
 	"bufio"
 //line README.md:385
@@ -22,6 +22,7 @@ type File string
 type CodeBlock []CodeLine
 type BlockName string
 type language string
+
 //line LineNumbers.md:36
 type CodeLine struct {
 	text   string
@@ -29,16 +30,24 @@ type CodeLine struct {
 	lang   language
 	number int
 }
+
 //line LineNumbers.md:30
 
 var blocks map[BlockName]CodeBlock
 var files map[File]CodeBlock
+
 //line README.md:402
 var namedBlockRe *regexp.Regexp
+
 //line README.md:432
 var fileBlockRe *regexp.Regexp
+
 //line README.md:516
 var replaceRe *regexp.Regexp
+
+//line IndentedBlocks.md:69
+var blockStartRe *regexp.Regexp
+
 //line README.md:72
 
 //line LineNumbers.md:118
@@ -55,6 +64,8 @@ func ProcessFile(r io.Reader, inputfilename string) error {
 	var bname BlockName
 	var fname File
 	var block CodeBlock
+//line IndentedBlocks.md:92
+	var blockPrefix string
 //line LineNumbers.md:99
 	for {
 		line.number++
@@ -67,8 +78,9 @@ func ProcessFile(r io.Reader, inputfilename string) error {
 		default:
 			return err
 		}
-//line LineNumbers.md:145
+//line IndentedBlocks.md:119
 		if inBlock {
+			line.text = strings.TrimPrefix(line.text, blockPrefix)
 			if line.text == "```\n" {
 //line LineNumbers.md:56
 				inBlock = false
@@ -89,27 +101,30 @@ func ProcessFile(r io.Reader, inputfilename string) error {
 						blocks[bname] = block
 					}
 				}
-//line LineNumbers.md:148
+//line IndentedBlocks.md:123
 				continue
 			}
 //line LineNumbers.md:48
 			block = append(block, line)
-//line LineNumbers.md:151
+//line IndentedBlocks.md:126
 			continue
 		}
-//line LineNumbers.md:170
-		if len(line.text) >= 3 && (line.text[0:3] == "```") {
+//line IndentedBlocks.md:56
+		if matches := blockStartRe.FindStringSubmatch(line.text); matches != nil {
 			inBlock = true
+			blockPrefix = matches[1]
+			line.text = strings.TrimPrefix(line.text, blockPrefix)
 			// We were outside of a block, so just blindly reset it.
 			block = make(CodeBlock, 0)
 //line LineNumbers.md:181
 			fname, bname, appending, line.lang = parseHeader(line.text)
-//line LineNumbers.md:175
+//line IndentedBlocks.md:63
 		}
 //line LineNumbers.md:111
 	}
 //line LineNumbers.md:121
 }
+
 //line LineNumbers.md:190
 func parseHeader(line string) (File, BlockName, bool, language) {
 	line = strings.TrimSpace(line)
@@ -124,6 +139,7 @@ func parseHeader(line string) (File, BlockName, bool, language) {
 	return "", "", false, ""
 //line LineNumbers.md:193
 }
+
 //line WhitespacePreservation.md:34
 // Replace expands all macros in a CodeBlock and returns a CodeBlock with no
 // references to macros.
@@ -154,6 +170,7 @@ func (c CodeBlock) Replace(prefix string) (ret CodeBlock) {
 	return
 //line WhitespacePreservation.md:38
 }
+
 //line LineNumbers.md:277
 
 // Finalize extract the textual lines from CodeBlocks and (if needed) prepend a
@@ -171,7 +188,7 @@ func (c CodeBlock) Finalize() (ret string) {
 				formatstring = "//line %[2]v:%[1]v\n"
 			case "C", "c", "cpp":
 				formatstring = "#line %v \"%v\"\n"
-            default:
+			default:
 				ret += l.text
 				continue
 			}
@@ -183,6 +200,7 @@ func (c CodeBlock) Finalize() (ret string) {
 	}
 	return
 }
+
 //line README.md:74
 
 func main() {
@@ -196,6 +214,8 @@ func main() {
 	fileBlockRe = regexp.MustCompile("^`{3,}\\s?([\\w\\+]+)\\s+([\\w\\.\\-\\/]+)\\s*([+][=])?$")
 //line WhitespacePreservation.md:11
 	replaceRe = regexp.MustCompile(`^([\s]*)<<<(.+)>>>[\s]*$`)
+//line IndentedBlocks.md:83
+	blockStartRe = regexp.MustCompile("^([\\s]*)```")
 //line README.md:136
 
 	// os.Args[0] is the command name, "lmt". We don't want to process it.
