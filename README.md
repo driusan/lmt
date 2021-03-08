@@ -223,3 +223,13 @@ written is the same as passed on the command line.
 Small bug fixes can be contributed by modifying the prose and code in
 the existing files. Larger features can be included as a patch in a
 new file.
+
+## Credits
+
+`lmt` is primarily authored by Dave MacFarlane ([@driusan](https://github.com/driusan/)). Bryan Allred ([@bmallred](https://github.com/bmallred/)) improved the
+parsing code to include the metadata in the code block header rather than a
+rendered markdown header. [@mek-apelsin](https://github.com/mek-apelsin/)
+wrote the patch to include pragmas for line numbers, and Dave Abrahams
+([@dabrahams](https://github.com/dabrahams/)) wrote the demo of features in
+this README, making it more user-focused (it previously dove straight into
+implementation.)
