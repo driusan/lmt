@@ -21,7 +21,7 @@ jobs:
       - name: Go setup
         uses: actions/setup-go@v2
         with: 
-          go-version: env.GOVER
+          go-version: ${{ env.GOVER }}
 
       - name: Build lmt
         run: |
@@ -33,7 +33,7 @@ jobs:
           FILES: ${{ join( env.FILES, ' ' ) }}
         run: |
           mv main.go main.go.orig
-          ./lmt ${{  }}
+          ./lmt $FILES
           cmp -s main.go main.go.orig
 
 
