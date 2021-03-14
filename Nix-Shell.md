@@ -18,3 +18,6 @@ pkgs.mkShell {
 <<<Function definition>>>
 <<<Create shell>>>
 -->
+
+# About Nix
+Nix is a package manager designed to allow for completely reproducible builds. It allows for developers to ensure that software builds the same on 1 computer as it does on any other. For more information, see <https://nixos.org/>
