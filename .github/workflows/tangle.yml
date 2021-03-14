@@ -1,12 +1,14 @@
 name: LMT Tangle
 
+env:
+  FILES: [ Implementation.md, WhitespacePreservation.md, SubdirectoryFiles.md, LineNumbers.md, IndentedBlocks.md ]
+  GOVER: '^1.16'
+
 on:
   push:
     branches: 
       - master
-    paths:
-      - '**.md'
-      - '!README.md'
+    paths: ${{ env.FILES }}
 
 jobs:
   tangle:
@@ -19,25 +21,19 @@ jobs:
       - name: Go setup
         uses: actions/setup-go@v2
         with: 
-          go-version: '^1.16'
+          go-version: ${{ env.GOVER }}
 
-      - name: Build bootstrapping file
+      - name: Build lmt
         run: |
           go build main.go
           mv main lmt
 
-      - name: Tangle main using the bootstrapping file
-        run: ./lmt Implementation.md WhitespacePreservation.md SubdirectoryFiles.md LineNumbers.md IndentedBlocks.md
-
-      - name: Commit files
+      - name: Make sure main.go has not changed unintentionally
+        env:
+          FILES: ${{ join( env.FILES, ' ' ) }}
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "github-actions[bot]"
-          git add main.go
-          git commit -m 'retangle main[bot]'
+          mv main.go main.go.orig
+          ./lmt $FILES
+          cmp -s main.go main.go.orig
 
-      - name: Push new main.go
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+
