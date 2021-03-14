@@ -1,20 +1,20 @@
-//line README.md:65
+//line Implementation.md:60
 package main
 
 import (
-//line README.md:149
+//line Implementation.md:157
 	"fmt"
-	"io"
 	"os"
-//line README.md:212
+	"io"
+//line Implementation.md:223
 	"bufio"
-//line README.md:385
+//line Implementation.md:406
 	"regexp"
-//line README.md:510
+//line Implementation.md:542
 	"strings"
 //line SubdirectoryFiles.md:35
 	"path/filepath"
-//line README.md:69
+//line Implementation.md:64
 )
 
 //line LineNumbers.md:25
@@ -22,7 +22,6 @@ type File string
 type CodeBlock []CodeLine
 type BlockName string
 type language string
-
 //line LineNumbers.md:36
 type CodeLine struct {
 	text   string
@@ -30,25 +29,19 @@ type CodeLine struct {
 	lang   language
 	number int
 }
-
 //line LineNumbers.md:30
 
 var blocks map[BlockName]CodeBlock
 var files map[File]CodeBlock
-
-//line README.md:402
+//line Implementation.md:424
 var namedBlockRe *regexp.Regexp
-
-//line README.md:432
+//line Implementation.md:458
 var fileBlockRe *regexp.Regexp
-
-//line README.md:516
+//line Implementation.md:549
 var replaceRe *regexp.Regexp
-
-//line IndentedBlocks.md:69
+//line IndentedBlocks.md:68
 var blockStartRe *regexp.Regexp
-
-//line README.md:72
+//line Implementation.md:67
 
 //line LineNumbers.md:118
 // Updates the blocks and files map for the markdown read from r.
@@ -64,7 +57,7 @@ func ProcessFile(r io.Reader, inputfilename string) error {
 	var bname BlockName
 	var fname File
 	var block CodeBlock
-//line IndentedBlocks.md:92
+//line IndentedBlocks.md:91
 	var blockPrefix string
 //line LineNumbers.md:99
 	for {
@@ -78,53 +71,52 @@ func ProcessFile(r io.Reader, inputfilename string) error {
 		default:
 			return err
 		}
-//line IndentedBlocks.md:119
+//line IndentedBlocks.md:118
 		if inBlock {
-			line.text = strings.TrimPrefix(line.text, blockPrefix)
-			if line.text == "```\n" {
+		    line.text = strings.TrimPrefix(line.text, blockPrefix)
+		    if line.text == "```\n" {
 //line LineNumbers.md:56
-				inBlock = false
-				// Update the files map if it's a file.
-				if fname != "" {
-					if appending {
-						files[fname] = append(files[fname], block...)
-					} else {
-						files[fname] = block
-					}
-				}
+		        inBlock = false
+		        // Update the files map if it's a file.
+		        if fname != "" {
+		        	if appending {
+		        		files[fname] = append(files[fname], block...)
+		        	} else {
+		        		files[fname] = block
+		        	}
+		        }
 
-				// Update the named block map if it's a named block.
-				if bname != "" {
-					if appending {
-						blocks[bname] = append(blocks[bname], block...)
-					} else {
-						blocks[bname] = block
-					}
-				}
-//line IndentedBlocks.md:123
-				continue
-			}
+		        // Update the named block map if it's a named block.
+		        if bname != "" {
+		        	if appending {
+		        		blocks[bname] = append(blocks[bname], block...)
+		        	} else {
+		        		blocks[bname] = block
+		        	}
+		        }
+//line IndentedBlocks.md:122
+		        continue
+		    }
 //line LineNumbers.md:48
-			block = append(block, line)
-//line IndentedBlocks.md:126
-			continue
+		    block = append(block, line)
+//line IndentedBlocks.md:125
+		    continue
 		}
-//line IndentedBlocks.md:56
+//line IndentedBlocks.md:55
 		if matches := blockStartRe.FindStringSubmatch(line.text); matches != nil {
-			inBlock = true
-			blockPrefix = matches[1]
-			line.text = strings.TrimPrefix(line.text, blockPrefix)
-			// We were outside of a block, so just blindly reset it.
-			block = make(CodeBlock, 0)
+		    inBlock = true
+		    blockPrefix = matches[1]
+		    line.text = strings.TrimPrefix(line.text, blockPrefix)
+		    // We were outside of a block, so just blindly reset it.
+		    block = make(CodeBlock, 0)
 //line LineNumbers.md:181
-			fname, bname, appending, line.lang = parseHeader(line.text)
-//line IndentedBlocks.md:63
+		    fname, bname, appending, line.lang = parseHeader(line.text)
+//line IndentedBlocks.md:62
 		}
 //line LineNumbers.md:111
 	}
 //line LineNumbers.md:121
 }
-
 //line LineNumbers.md:190
 func parseHeader(line string) (File, BlockName, bool, language) {
 	line = strings.TrimSpace(line)
@@ -139,7 +131,6 @@ func parseHeader(line string) (File, BlockName, bool, language) {
 	return "", "", false, ""
 //line LineNumbers.md:193
 }
-
 //line WhitespacePreservation.md:34
 // Replace expands all macros in a CodeBlock and returns a CodeBlock with no
 // references to macros.
@@ -170,7 +161,6 @@ func (c CodeBlock) Replace(prefix string) (ret CodeBlock) {
 	return
 //line WhitespacePreservation.md:38
 }
-
 //line LineNumbers.md:277
 
 // Finalize extract the textual lines from CodeBlocks and (if needed) prepend a
@@ -188,7 +178,7 @@ func (c CodeBlock) Finalize() (ret string) {
 				formatstring = "//line %[2]v:%[1]v\n"
 			case "C", "c", "cpp":
 				formatstring = "#line %v \"%v\"\n"
-			default:
+            default:
 				ret += l.text
 				continue
 			}
@@ -200,11 +190,10 @@ func (c CodeBlock) Finalize() (ret string) {
 	}
 	return
 }
-
-//line README.md:74
+//line Implementation.md:69
 
 func main() {
-//line README.md:157
+//line Implementation.md:166
 	// Initialize the maps
 	blocks = make(map[BlockName]CodeBlock)
 	files = make(map[File]CodeBlock)
@@ -214,9 +203,9 @@ func main() {
 	fileBlockRe = regexp.MustCompile("^`{3,}\\s?([\\w\\+]+)\\s+([\\w\\.\\-\\/]+)\\s*([+][=])?$")
 //line WhitespacePreservation.md:11
 	replaceRe = regexp.MustCompile(`^([\s]*)<<<(.+)>>>[\s]*$`)
-//line IndentedBlocks.md:83
+//line IndentedBlocks.md:82
 	blockStartRe = regexp.MustCompile("^([\\s]*)```")
-//line README.md:136
+//line Implementation.md:144
 
 	// os.Args[0] is the command name, "lmt". We don't want to process it.
 	for _, file := range os.Args[1:] {
@@ -233,7 +222,7 @@ func main() {
 		// Don't defer since we're in a loop, we don't want to wait until the function
 		// exits.
 		f.Close()
-//line README.md:140
+//line Implementation.md:148
 
 	}
 //line LineNumbers.md:311
@@ -253,5 +242,5 @@ func main() {
 		// We don't defer this so that it'll get closed before the loop finishes.
 		f.Close()
 	}
-//line README.md:77
+//line Implementation.md:72
 }
