@@ -2,7 +2,7 @@ name: LMT Tangle
 on: push
 
 env:
-  FILES: ${{ join([ Implementation.md, WhitespacePreservation.md, SubdirectoryFiles.md, LineNumbers.md, IndentedBlocks.md ], ' ') }}
+  FILES: 'Implementation.md WhitespacePreservation.md SubdirectoryFiles.md LineNumbers.md IndentedBlocks.md'
   GOVER: '^1.16'
 
 jobs:
