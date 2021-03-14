@@ -1,0 +1,43 @@
+name: LMT Tangle
+
+on:
+  push:
+    branches: 
+      - master
+    paths:
+      - '**.md'
+      - '!README.md'
+
+jobs:
+  tangle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Go setup
+        uses: actions/setup-go@v2
+        with: 
+          go-version: '^1.16'
+
+      - name: Build bootstrapping file
+        run: |
+          go build main.go
+          mv main lmt
+
+      - name: Tangle main using the bootstrapping file
+        run: ./lmt Implementation.md WhitespacePreservation.md SubdirectoryFiles.md LineNumbers.md IndentedBlocks.md
+
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "github-actions[bot]"
+          git add main.go
+          git commit -m 'retangle main[bot]'
+
+      - name: Push new main.go
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ github.ref }}
