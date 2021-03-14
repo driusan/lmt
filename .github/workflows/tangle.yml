@@ -1,14 +1,9 @@
 name: LMT Tangle
+on: push
 
 env:
   FILES: [ Implementation.md, WhitespacePreservation.md, SubdirectoryFiles.md, LineNumbers.md, IndentedBlocks.md ]
   GOVER: '^1.16'
-
-on:
-  push:
-    branches: 
-      - master
-    paths: ${{ env.FILES }}
 
 jobs:
   tangle:
