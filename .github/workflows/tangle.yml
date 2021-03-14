@@ -5,8 +5,11 @@ on:
     branches: 
       - master
     paths:
-      - '**.md'
-      - '!README.md'
+      - 'Implementation.md'
+      - 'WhitespacePreservation.md'
+      - 'SubdirectoryFiles.md'
+      - 'LineNumbers.md'
+      - 'IndentedBlocks.md'
 
 jobs:
   tangle:
