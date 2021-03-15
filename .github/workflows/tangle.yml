@@ -1,0 +1,34 @@
+name: LMT Tangle
+on:
+  - push
+  - pull_request
+
+env:
+  FILES: 'Implementation.md WhitespacePreservation.md SubdirectoryFiles.md LineNumbers.md IndentedBlocks.md'
+  GOVER: '^1.16'
+
+jobs:
+  tangle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Go setup
+        uses: actions/setup-go@v2
+        with: 
+          go-version: ${{ env.GOVER }}
+
+      - name: Build lmt
+        run: |
+          go build main.go
+          mv main lmt
+
+      - name: Make sure main.go has not changed unintentionally
+        run: |
+          mv main.go main.go.orig
+          ./lmt $FILES
+          cmp -s main.go main.go.orig
+
+
