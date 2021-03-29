@@ -24,6 +24,9 @@ directory. You can use the `-o $path` argument to `go build` to build
 the binary in a different location. (i.e. `go build -o ~/bin/` to put the
 binary in `~/bin/`.)
 
+#### A note for Nix(OS) users
+This repo also comes with a `shell.nix` file. While an existing version is included, like lmt itself, this is mainly for bootstrapping purposes. To compile it, use `lmt Nix-Shell.md`
+
 ## Demo
 
 To observe `lmt` at work, put this file in an empty directory, cd to that
