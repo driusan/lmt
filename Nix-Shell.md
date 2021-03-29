@@ -1,3 +1,6 @@
+# About Nix
+Nix is a package manager designed to allow for completely reproducible builds. It allows for developers to have reproducible build environments in order to ensure consistency. For more information, see <https://nixos.org/>.
+
 # Nix Shell
 Nix development shells can be used to get development environments which can be accessed using the `nix-shell` command.
 
@@ -13,5 +16,3 @@ pkgs.mkShell {
 }
 ```
 
-# About Nix
-Nix is a package manager designed to allow for completely reproducible builds. It allows for developers to ensure that software builds the same on 1 computer as it does on any other. For more information, see <https://nixos.org/>.
