@@ -1,5 +1,8 @@
 name: LMT Tangle
-on: push
+on:
+  - push
+  - pull_request
+
 
 env:
   FILES: 'Implementation.md WhitespacePreservation.md SubdirectoryFiles.md LineNumbers.md IndentedBlocks.md'
@@ -24,8 +27,6 @@ jobs:
           mv main lmt
 
       - name: Make sure main.go has not changed unintentionally
-        env:
-          FILES: ${{ join( env.FILES, ' ' ) }}
         run: |
           mv main.go main.go.orig
           ./lmt $FILES
