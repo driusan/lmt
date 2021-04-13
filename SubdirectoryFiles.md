@@ -9,7 +9,7 @@ a little help from the Go standard library `path/filepath` functions.
 
 We'll get the directory of the string, and if it's not "." (filepath.Dir
 returns ".", not "" for empty paths) call `os.MkdirAll` on it in order to create
-the directory before creating the file
+the directory before creating the file.
 
 ```go "Output files"
 for filename, codeblock := range files {
