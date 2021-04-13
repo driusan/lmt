@@ -1,7 +1,7 @@
 # lmt - literate markdown tangle
 
 This file implements a tangle program for a literate programming style
-where the code is weaved into markdown code blocks. There is no corresponding
+where the code is tangled from markdown code blocks. There is no corresponding
 weave, because the markdown itself can already be read as the documentation,
 either through a text editor or through an online system that already renders
 markdown such as GitHub.
