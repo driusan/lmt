@@ -207,7 +207,7 @@ Running `lmt` on this file at this point should generate the files `data.csv`,
 ## Building lmt from source
 
 While the tangled source of `lmt` is included for bootstrapping purposes,
-the markdown is considered the canonoical version. The Go source can
+the markdown is considered the canonical version. The Go source can
 be re-extracted with:
 
 ```shell
